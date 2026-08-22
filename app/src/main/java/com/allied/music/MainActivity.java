@@ -7,7 +7,6 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import androidx.media3.common.Player;
 import androidx.media3.session.MediaController;
 import androidx.media3.session.SessionToken;
 
@@ -18,6 +17,7 @@ import java.util.Locale;
 public class MainActivity extends Activity {
 
     private MediaController controller;
+    private ListenableFuture<MediaController> controllerFuture;
 
     private TextView songTitle;
     private TextView songArtist;
@@ -29,8 +29,6 @@ public class MainActivity extends Activity {
     private Button playButton;
     private Button previousButton;
     private Button nextButton;
-
-    private ListenableFuture<MediaController> controllerFuture;
 
     private final Runnable progressRunnable = new Runnable() {
         @Override
@@ -44,18 +42,17 @@ public class MainActivity extends Activity {
                 if (duration > 0) {
                     progressBar.setMax((int) duration);
                     progressBar.setProgress((int) position);
+                    totalTime.setText(formatTime(duration));
                 }
 
                 currentTime.setText(formatTime(position));
 
-                if (duration > 0) {
-                    totalTime.setText(formatTime(duration));
-                }
-
                 updatePlayButton();
             }
 
-            progressBar.postDelayed(this, 500);
+            if (progressBar != null) {
+                progressBar.postDelayed(this, 500);
+            }
         }
     };
 
@@ -67,15 +64,18 @@ public class MainActivity extends Activity {
 
         songTitle = findViewById(R.id.songTitle);
         songArtist = findViewById(R.id.songArtist);
-
         currentTime = findViewById(R.id.currentTime);
         totalTime = findViewById(R.id.totalTime);
-
         progressBar = findViewById(R.id.progressBar);
 
         playButton = findViewById(R.id.playButton);
         previousButton = findViewById(R.id.previousButton);
         nextButton = findViewById(R.id.nextButton);
+
+        songTitle.setText("ALLIED Music");
+        songArtist.setText("ALLIED");
+        currentTime.setText("0:00");
+        totalTime.setText("0:00");
 
         SessionToken sessionToken =
                 new SessionToken(
@@ -84,25 +84,26 @@ public class MainActivity extends Activity {
                 );
 
         controllerFuture =
-                new MediaController.Builder(this, sessionToken)
-                        .buildAsync();
+                new MediaController.Builder(
+                        this,
+                        sessionToken
+                ).buildAsync();
 
         controllerFuture.addListener(
-                new Runnable() {
-                    @Override
-                    public void run() {
+                () -> {
 
-                        try {
-                            controller = controllerFuture.get();
+                    try {
 
-                            setupPlayerControls();
+                        controller = controllerFuture.get();
 
-                            progressBar.post(progressRunnable);
+                        setupPlayerControls();
 
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        progressBar.post(progressRunnable);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+
                 },
                 Runnable::run
         );
@@ -110,10 +111,11 @@ public class MainActivity extends Activity {
 
     private void setupPlayerControls() {
 
-        songTitle.setText("ALLIED Music");
-        songArtist.setText("ALLIED");
-
         playButton.setOnClickListener(v -> {
+
+            if (controller == null) {
+                return;
+            }
 
             if (controller.isPlaying()) {
                 controller.pause();
@@ -126,14 +128,18 @@ public class MainActivity extends Activity {
 
         previousButton.setOnClickListener(v -> {
 
-            if (controller.hasPreviousMediaItem()) {
+            if (controller != null &&
+                    controller.hasPreviousMediaItem()) {
+
                 controller.seekToPrevious();
             }
         });
 
         nextButton.setOnClickListener(v -> {
 
-            if (controller.hasNextMediaItem()) {
+            if (controller != null &&
+                    controller.hasNextMediaItem()) {
+
                 controller.seekToNext();
             }
         });
@@ -147,7 +153,7 @@ public class MainActivity extends Activity {
                             int progress,
                             boolean fromUser) {
 
-                        if (fromUser && controller != null) {
+                        if (fromUser) {
                             currentTime.setText(
                                     formatTime(progress)
                             );
@@ -177,6 +183,10 @@ public class MainActivity extends Activity {
 
     private void updatePlayButton() {
 
+        if (playButton == null) {
+            return;
+        }
+
         if (controller != null && controller.isPlaying()) {
             playButton.setText("⏸");
         } else {
@@ -185,6 +195,10 @@ public class MainActivity extends Activity {
     }
 
     private String formatTime(long milliseconds) {
+
+        if (milliseconds < 0) {
+            milliseconds = 0;
+        }
 
         long totalSeconds = milliseconds / 1000;
 
@@ -202,11 +216,17 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
 
-        progressBar.removeCallbacks(progressRunnable);
+        if (progressBar != null) {
+            progressBar.removeCallbacks(progressRunnable);
+        }
 
         if (controller != null) {
             controller.release();
             controller = null;
+        }
+
+        if (controllerFuture != null) {
+            controllerFuture.cancel(false);
         }
 
         super.onDestroy();
