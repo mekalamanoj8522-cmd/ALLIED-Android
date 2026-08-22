@@ -15,12 +15,13 @@ public class PlayerService extends MediaSessionService {
     public void onCreate() {
         super.onCreate();
 
-        player = new ExoPlayer.Builder(this).build();
+        player = new ExoPlayer.Builder(this)
+                .build();
 
         MediaItem mediaItem =
                 new MediaItem.Builder()
                         .setUri(
-                            "https://mekalamanoj8522-cmd.github.io/sample.mp3"
+                                "https://mekalamanoj8522-cmd.github.io/sample.mp3"
                         )
                         .setMediaMetadata(
                                 new MediaMetadata.Builder()
@@ -35,9 +36,15 @@ public class PlayerService extends MediaSessionService {
 
         mediaSession =
                 new MediaSession.Builder(this, player)
+                        .setCallback(
+                                new MediaSession.Callback() {
+                                }
+                        )
                         .build();
 
         player.prepare();
+
+        // Start playing automatically
         player.play();
     }
 
