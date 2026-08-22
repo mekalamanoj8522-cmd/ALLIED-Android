@@ -33,6 +33,7 @@ public class PlayerService extends MediaSessionService {
                         .build();
 
         player.setMediaItem(mediaItem);
+        
 
         mediaSession =
                 new MediaSession.Builder(this, player)
