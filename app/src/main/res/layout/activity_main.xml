@@ -6,27 +6,114 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="30dp">
+    android:padding="24dp"
+    android:background="#0B0B0F">
 
+    <!-- App Name -->
     <TextView
+        android:id="@+id/appTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="ALLIED"
+        android:textColor="#FFFFFF"
         android:textSize="36sp"
         android:textStyle="bold" />
 
+    <!-- Album Art -->
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="🎵 Background Music"
-        android:textSize="20sp"
-        android:layout_marginTop="20dp" />
+        android:id="@+id/albumArt"
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:layout_marginTop="35dp"
+        android:gravity="center"
+        android:text="🎵"
+        android:textSize="90sp"
+        android:background="#19191F" />
 
+    <!-- Song Title -->
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/songTitle"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Music should continue when the screen is locked."
-        android:textSize="16sp"
-        android:layout_marginTop="12dp" />
+        android:layout_marginTop="30dp"
+        android:gravity="center"
+        android:text="ALLIED Music"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <!-- Artist -->
+    <TextView
+        android:id="@+id/songArtist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:text="ALLIED"
+        android:textColor="#AAAAAA"
+        android:textSize="16sp" />
+
+    <!-- Progress -->
+    <SeekBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp" />
+
+    <!-- Time -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/currentTime"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="0:00"
+            android:textColor="#AAAAAA" />
+
+        <TextView
+            android:id="@+id/totalTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0:00"
+            android:textColor="#AAAAAA" />
+
+    </LinearLayout>
+
+    <!-- Controls -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/previousButton"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:text="⏮"
+            android:textSize="22sp" />
+
+        <Button
+            android:id="@+id/playButton"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:text="▶"
+            android:textSize="28sp" />
+
+        <Button
+            android:id="@+id/nextButton"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:text="⏭"
+            android:textSize="22sp" />
+
+    </LinearLayout>
 
 </LinearLayout>
