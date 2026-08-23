@@ -3,11 +3,14 @@ package com.allied.music;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.Intent;
+import android.net.Uri;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,7 +27,7 @@ public class YouTubeSearchActivity extends Activity {
     private LinearLayout resultsLayout;
 
     private static final String API_KEY =
-            "AIzaSyCbJKHTyKjOVTBQnPghTa1iUUqEjx_7Jl0";
+            "AIzaSyAYrOmSmLjS4iuRssfE1HzjIsAch9NAivE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,19 +43,23 @@ public class YouTubeSearchActivity extends Activity {
         main.setPadding(30, 30, 30, 30);
 
         TextView title = new TextView(this);
+
         title.setText("ALLIED YouTube");
         title.setTextSize(28);
         title.setGravity(Gravity.CENTER);
         title.setPadding(0, 20, 0, 30);
 
         searchBox = new EditText(this);
+
         searchBox.setHint("Search YouTube...");
         searchBox.setSingleLine(true);
 
         Button searchButton = new Button(this);
-        searchButton.setText("🔍 Search");
+
+        searchButton.setText("🔍 SEARCH");
 
         resultsLayout = new LinearLayout(this);
+
         resultsLayout.setOrientation(
                 LinearLayout.VERTICAL
         );
@@ -67,7 +74,9 @@ public class YouTubeSearchActivity extends Activity {
         searchButton.setOnClickListener(v -> {
 
             String query =
-                    searchBox.getText().toString().trim();
+                    searchBox.getText()
+                            .toString()
+                            .trim();
 
             if (query.isEmpty()) {
 
@@ -89,6 +98,7 @@ public class YouTubeSearchActivity extends Activity {
         resultsLayout.removeAllViews();
 
         TextView loading = new TextView(this);
+
         loading.setText("Searching YouTube...");
         loading.setTextSize(18);
         loading.setPadding(0, 30, 0, 30);
@@ -97,10 +107,15 @@ public class YouTubeSearchActivity extends Activity {
 
         new Thread(() -> {
 
+            HttpURLConnection connection = null;
+
             try {
 
                 String encodedQuery =
-                        URLEncoder.encode(query, "UTF-8");
+                        URLEncoder.encode(
+                                query,
+                                "UTF-8"
+                        );
 
                 String urlString =
                         "https://www.googleapis.com/youtube/v3/search"
@@ -110,15 +125,29 @@ public class YouTubeSearchActivity extends Activity {
                                 + "&maxResults=10"
                                 + "&key=" + API_KEY;
 
-                URL url = new URL(urlString);
+                URL url =
+                        new URL(urlString);
 
-                HttpURLConnection connection =
+                connection =
                         (HttpURLConnection)
                                 url.openConnection();
 
                 connection.setRequestMethod("GET");
+
                 connection.setConnectTimeout(10000);
+
                 connection.setReadTimeout(10000);
+
+                int responseCode =
+                        connection.getResponseCode();
+
+                if (responseCode != 200) {
+
+                    throw new Exception(
+                            "YouTube API error: "
+                                    + responseCode
+                    );
+                }
 
                 BufferedReader reader =
                         new BufferedReader(
@@ -133,11 +162,11 @@ public class YouTubeSearchActivity extends Activity {
                 String line;
 
                 while ((line = reader.readLine()) != null) {
+
                     response.append(line);
                 }
 
                 reader.close();
-                connection.disconnect();
 
                 JSONObject json =
                         new JSONObject(
@@ -165,11 +194,15 @@ public class YouTubeSearchActivity extends Activity {
                                             "snippet"
                                     );
 
+                            JSONObject id =
+                                    item.getJSONObject(
+                                            "id"
+                                    );
+
                             String videoId =
-                                    item.getJSONObject("id")
-                                            .getString(
-                                                    "videoId"
-                                            );
+                                    id.getString(
+                                            "videoId"
+                                    );
 
                             String videoTitle =
                                     snippet.getString(
@@ -185,23 +218,52 @@ public class YouTubeSearchActivity extends Activity {
                                     new TextView(this);
 
                             result.setText(
-                                    "▶ " + videoTitle
-                                            + "\n"
+                                    "▶ "
+                                            + videoTitle
+                                            + "\n\n"
                                             + channel
-                                            + "\n"
-                                            + "https://youtube.com/watch?v="
-                                            + videoId
+                                            + "\n\n"
+                                            + "Tap to play"
                             );
 
-                            result.setTextSize(16);
+                            result.setTextSize(17);
+
                             result.setPadding(
-                                    10,
                                     20,
-                                    10,
-                                    20
+                                    25,
+                                    20,
+                                    25
                             );
 
-                            resultsLayout.addView(result);
+                            result.setClickable(true);
+
+                            result.setFocusable(true);
+
+                            /*
+                             * PLAY VIDEO
+                             */
+                            result.setOnClickListener(
+                                    v -> {
+
+                                        String youtubeUrl =
+                                                "https://www.youtube.com/watch?v="
+                                                        + videoId;
+
+                                        Intent intent =
+                                                new Intent(
+                                                        Intent.ACTION_VIEW,
+                                                        Uri.parse(
+                                                                youtubeUrl
+                                                        )
+                                                );
+
+                                        startActivity(intent);
+                                    }
+                            );
+
+                            resultsLayout.addView(
+                                    result
+                            );
                         }
 
                     } catch (Exception e) {
@@ -229,6 +291,7 @@ public class YouTubeSearchActivity extends Activity {
                     );
 
                     error.setTextSize(16);
+
                     error.setPadding(
                             0,
                             30,
@@ -236,8 +299,16 @@ public class YouTubeSearchActivity extends Activity {
                             30
                     );
 
-                    resultsLayout.addView(error);
+                    resultsLayout.addView(
+                            error
+                    );
                 });
+
+            } finally {
+
+                if (connection != null) {
+                    connection.disconnect();
+                }
             }
 
         }).start();
