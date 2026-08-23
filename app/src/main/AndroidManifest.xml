@@ -2,11 +2,13 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Internet access for YouTube/API and online music -->
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <uses-permission
-        android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Background music -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
+    <!-- Android 14+ media playback foreground service -->
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
@@ -15,17 +17,26 @@
         android:label="ALLIED"
         android:theme="@style/AppTheme">
 
+        <!-- Main screen -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+
+                <category
+                    android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
         </activity>
 
+        <!-- YouTube search screen -->
+        <activity
+            android:name=".YouTubeSearchActivity"
+            android:exported="false" />
+
+        <!-- Background music player -->
         <service
             android:name=".PlayerService"
             android:exported="true"
