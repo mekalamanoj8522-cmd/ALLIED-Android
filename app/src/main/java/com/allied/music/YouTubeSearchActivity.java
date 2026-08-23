@@ -11,7 +11,7 @@ public class YouTubeSearchActivity extends Activity {
 
     private EditText searchBox;
     private Button searchButton;
-    private LinearLayout results;
+    private TextView resultText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,43 +19,41 @@ public class YouTubeSearchActivity extends Activity {
 
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(24, 24, 24, 24);
+        layout.setPadding(30, 30, 30, 30);
+
+        TextView title = new TextView(this);
+        title.setText("ALLIED YouTube");
+        title.setTextSize(28);
+        title.setPadding(0, 20, 0, 30);
 
         searchBox = new EditText(this);
-        searchBox.setHint("Search YouTube videos");
+        searchBox.setHint("Search YouTube music...");
 
         searchButton = new Button(this);
-        searchButton.setText("🔎 Search");
+        searchButton.setText("🔍 Search");
 
-        results = new LinearLayout(this);
-        results.setOrientation(LinearLayout.VERTICAL);
+        resultText = new TextView(this);
+        resultText.setTextSize(18);
+        resultText.setPadding(0, 30, 0, 0);
 
+        layout.addView(title);
         layout.addView(searchBox);
         layout.addView(searchButton);
-        layout.addView(results);
+        layout.addView(resultText);
 
         setContentView(layout);
 
-        searchButton.setOnClickListener(v -> searchYouTube());
-    }
+        searchButton.setOnClickListener(v -> {
 
-    private void searchYouTube() {
+            String query = searchBox.getText().toString().trim();
 
-        String query = searchBox.getText().toString().trim();
-
-        if (query.isEmpty()) {
-            searchBox.setError("Enter a video name");
-            return;
-        }
-
-        results.removeAllViews();
-
-        TextView message = new TextView(this);
-        message.setText(
-                "Searching YouTube for:\n\n" + query
-        );
-        message.setTextSize(18);
-
-        results.addView(message);
+            if (query.isEmpty()) {
+                resultText.setText("Please enter something to search.");
+            } else {
+                resultText.setText(
+                        "Searching YouTube for:\n\n" + query
+                );
+            }
+        });
     }
 }
