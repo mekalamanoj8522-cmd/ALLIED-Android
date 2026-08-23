@@ -35,7 +35,24 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+Button youtubeButton = new Button(this);
+youtubeButton.setText("🔎 Search YouTube");
 
+youtubeButton.setOnClickListener(v -> {
+    Intent intent =
+            new Intent(MainActivity.this,
+                    YouTubeSearchActivity.class);
+
+    startActivity(intent);
+});
+
+addContentView(
+        youtubeButton,
+        new android.view.ViewGroup.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+);
         songTitle = findViewById(R.id.songTitle);
         songArtist = findViewById(R.id.songArtist);
         currentTime = findViewById(R.id.currentTime);
